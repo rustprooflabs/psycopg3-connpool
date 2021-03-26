@@ -46,3 +46,71 @@ env $(cat ~/.psycopg3-connpool.env | grep -v ^# | xargs) python run_server.py
 
 
 
+
+
+## Setup for tests
+
+```bash
+sudo su - postgres
+dropdb bench_test
+createdb bench_test
+pgbench -i -s 100 bench_test
+```
+
+
+Baseline test.  Setting thread count (`-j 2`) to `# CPU / 2`.  Client count = 5 per thread.
+Run wide open and get rough expectation for TPS and latency ballpark.
+
+```bash
+pgbench -c 10 -j 2 -T 600 bench_test
+```
+
+Results from Digital Ocean droplet w/ 4 AMD CPU and 8 GB RAM, SSDs.
+
+```
+starting vacuum...end.
+
+transaction type: <builtin: TPC-B (sort of)>
+scaling factor: 100
+query mode: simple
+number of clients: 10
+number of threads: 2
+duration: 600 s
+number of transactions actually processed: 2260097
+latency average = 2.652 ms
+latency stddev = 1.212 ms
+tps = 3766.762091 (including connections establishing)
+tps = 3766.782316 (excluding connections establishing)
+```
+
+
+Recreate.
+
+```bash
+dropdb bench_test
+createdb bench_test
+pgbench -i -s 100 bench_test
+```
+
+**WARNING:  Only run this on a TEST system!!!**
+
+Remove log files to setup pgBadger report to only have the following pgbench test.
+
+```
+sudo rm /var/log/postgresql/postgresql-13-main.log*
+sudo systemctl restart postgresql
+```
+
+
+PgBadger reports created with:
+
+
+```
+mkdir pgbadger
+```
+
+```bash
+pgbadger --anonymize /var/log/postgresql/postgresql-12-main.log* -o pgbadger/test_name.html
+```
+
+
