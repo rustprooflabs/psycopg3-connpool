@@ -27,7 +27,7 @@ def get_account_balance(account_id, pool):
     else:
         data = db.get_data(sql_raw, params, single_row=True)
 
-    account_balance = data[2]
+    account_balance = data['abalance']
     return account_balance
 
 

@@ -105,17 +105,19 @@ def _execute_query(sql_raw, params, qry_type):
     """
     app.logger.debug('Only the pool_default is configured!')
     with pool_default.connection() as conn:
+        cur = conn.cursor(row_factory=psycopg3.rows.dict_row)
+
         try:
             if qry_type == 'sel_multi':
-                results = conn.execute(sql_raw, params).fetchall()
+                results = cur.execute(sql_raw, params).fetchall()
             elif qry_type == 'sel_single':
-                results = conn.execute(sql_raw, params).fetchone()
+                results = cur.execute(sql_raw, params).fetchone()
             elif qry_type == 'insert':
-                conn.execute(sql_raw, params)
+                cur.execute(sql_raw, params)
                 conn.commit()
                 results = True
             elif qry_type == 'update':
-                conn.execute(sql_raw, params)
+                cur.execute(sql_raw, params)
                 conn.commit()
                 results = True
             else:

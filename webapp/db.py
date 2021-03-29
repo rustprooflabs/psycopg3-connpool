@@ -118,7 +118,7 @@ def _execute_query(sql_raw, params, qry_type):
     if not conn:
         return False
 
-    cur = conn.cursor()
+    cur = conn.cursor(row_factory=psycopg3.rows.dict_row)
 
     try:
         cur.execute(sql_raw, params)
