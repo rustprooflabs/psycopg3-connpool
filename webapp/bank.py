@@ -7,25 +7,47 @@ from webapp import app, db, db_pool
 
 
 def get_account_balance(account_id, pool):
+    """Returns the account balance for `account_id`
+
+    Parameters
+    ------------------
+    account_id : int
+    pool : str
+        To pool or not to pool?
+
+    Returns
+    ------------------
+    account_balance : int
+    """
     sql_raw = 'SELECT * FROM pgbench_accounts WHERE aid = %(account_id)s ;'
     params = {'account_id': account_id}
 
     if pool == 'pool':
         data = db_pool.get_data(sql_raw, params, single_row=True)
-        print(data)
     else:
         data = db.get_data(sql_raw, params, single_row=True)
-        print(data)
 
-    return data[2]
+    account_balance = data[2]
+    return account_balance
 
 
 def update_account_balance(account_id, delta, pool):
     """Runs three `UPDATE` and one `INSERT` query, each in their own transaction.
 
     WARNING: A real banking app would put all these queries in one transaction.
-    This was easier for me to quickly test. It may (or may not) be improved in the
-    future.
+    The purpose of this project is to test the impact of creating connections,
+    this approach intentionally adds stress to that aspect.
+
+    Parameters
+    ------------------
+    account_id : int
+    delta : int
+    pool : str
+        To pool or not to pool?
+
+    Returns
+    ------------------
+    account_balance : int
     """
     qry1 = """
 UPDATE pgbench_accounts

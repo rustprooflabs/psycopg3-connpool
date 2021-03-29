@@ -1,3 +1,5 @@
+"""psycopg3-connpool test webapp routes.
+"""
 import logging
 from flask import render_template, abort, request, jsonify, Response
 from webapp import app, bank, db_pool
