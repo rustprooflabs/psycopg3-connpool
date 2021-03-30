@@ -11,12 +11,14 @@ app.config['WTF_CSRF_ENABLED'] = True
 if config.APP_DEBUG:
     log_level = logging.DEBUG
 else:
-    print('Log Level INFO')
     log_level = logging.INFO
+    logging.getLogger('psycopg3').setLevel(logging.WARNING)
 
 logging.basicConfig(filename=config.LOG_PATH,
                     level=log_level,
                     format=f'%(asctime)s %(levelname)s %(name)s %(threadName)s : %(message)s')
+
+
 
 
 from webapp import routes

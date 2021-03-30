@@ -36,6 +36,7 @@ Add your Postgres connection string to the ``.env`` file.  This example assumes 
 
 ```bash
 PG_CONN=postgresql://your_user@db_host/test_db_name?application_name=psycopg3-connpool-webapp
+APP_DEBUG=True
 ```
 
 Run Flask webapp, provide the env var to the script.
