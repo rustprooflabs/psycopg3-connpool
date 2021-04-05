@@ -35,7 +35,11 @@ except KeyError:
 
 
 try:
-    APP_DEBUG = os.environ['APP_DEBUG']
+    APP_DEBUG_RAW = os.environ['APP_DEBUG']
+    if APP_DEBUG_RAW == 'False':
+        APP_DEBUG = False
+    else:
+        APP_DEBUG = True
 except KeyError:
     APP_DEBUG = False
 

@@ -103,7 +103,6 @@ def _execute_query(sql_raw, params, qry_type):
         Defines how the query is executed. e.g. `sel_multi`
         uses `.fetchall()` while `sel_single` uses `.fetchone()`.
     """
-    app.logger.debug('Only the pool_default is configured!')
     with pool_default.connection() as conn:
         cur = conn.cursor(row_factory=psycopg3.rows.dict_row)
 
