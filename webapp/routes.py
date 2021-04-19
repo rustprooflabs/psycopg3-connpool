@@ -27,3 +27,15 @@ def view_update_account_balance(pool, account_id, delta):
                    update_results=update_results,
                    account_balance=account_balance)
 
+@app.route('/<pool>/report/branch_activity')
+def view_report_branch_activity(pool):
+    data = bank.get_recent_activity_by_branch(pool)
+    return jsonify(success='True',
+                   data=data)
+
+@app.route('/<pool>/report/branch/<branch_id>')
+def view_report_branch_stats(pool, branch_id):
+    data = bank.get_branch_stats(pool, branch_id)
+    return jsonify(success='True',
+                   data=data)
+

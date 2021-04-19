@@ -66,7 +66,7 @@ UPDATE pgbench_branches SET bbalance = bbalance + %(delta)s WHERE bid = 1;
 
     qry4 = """
 INSERT INTO pgbench_history (tid, bid, aid, delta, mtime) 
-    VALUES (1, 1, %(account_id)s, %(delta)s, CURRENT_TIMESTAMP);
+    VALUES (1, 1, %(account_id)s, %(delta)s, now());
 """
 
     params_both = {
@@ -90,8 +90,56 @@ INSERT INTO pgbench_history (tid, bid, aid, delta, mtime)
     return [results1, results2, results3, results4]
 
 
-def get_branch_balance(branch_id):
-    pass
+def get_recent_activity_by_branch(pool):
+    sql_raw = """
+SELECT 1 AS sort, '1 minute' AS time_frame, bid, COUNT(*) AS account_updates,
+        COUNT(DISTINCT aid) AS active_accounts,
+        SUM(delta) sum_of_deltas
+    FROM public.pgbench_history
+    WHERE now() AT TIME ZONE 'UTC'- mtime  < '1 minute'::INTERVAL
+    GROUP BY bid
+UNION
+SELECT 2 AS sort, '1 hour' AS time_frame, bid, COUNT(*) AS account_updates,
+        COUNT(DISTINCT aid) AS active_accounts,
+        SUM(delta) sum_of_deltas
+    FROM public.pgbench_history
+    WHERE now() AT TIME ZONE 'UTC'- mtime  < '1 hour'::INTERVAL
+    GROUP BY bid
+UNION
+SELECT 3 AS sort, '1 day' AS time_frame, bid, COUNT(*) AS account_updates,
+        COUNT(DISTINCT aid) AS active_accounts,
+        SUM(delta) sum_of_deltas
+    FROM public.pgbench_history
+    WHERE now() AT TIME ZONE 'UTC'- mtime  < '1 day'::INTERVAL
+    GROUP BY bid
+    ORDER BY sort, bid
+;
+"""
+
+    if pool == 'pool':
+        results = db_pool.get_data(sql_raw, params=None)
+    else:
+        results = db.get_data(sql_raw, params=None)
+    return results
+
+
+
+def get_branch_stats(pool, branch_id):
+    sql_raw = """
+SELECT COUNT(*) AS accounts,
+        MIN(abalance), AVG(abalance)::FLOAT8, MAX(abalance), SUM(abalance)
+    FROM public.pgbench_accounts
+    WHERE bid = %(branch_id)s
+;
+"""
+    params = {'branch_id': branch_id}
+
+    if pool == 'pool':
+        results = db_pool.get_data(sql_raw, params=params)
+    else:
+        results = db.get_data(sql_raw, params=params)
+    return results
+
 
 
 def get_teller_balance(teller_id):

@@ -3,9 +3,10 @@ import logging
 
 APP_NAME = 'psycopg3-connpool-webapp'
 
-min_size = 4
-max_size = 30
-max_idle = 60
+pool_min_size = 1
+pool_max_size = 10
+pool_max_idle = 60
+pool_stat_sleep = 60
 
 
 CURR_PATH = os.path.abspath(os.path.dirname(__file__))

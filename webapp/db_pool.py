@@ -8,9 +8,11 @@ from webapp import app, config
 
 
 pool_default = psycopg3.pool.ConnectionPool(config.DATABASE_STRING,
-                                            min_size=config.min_size,
-                                            max_size=config.max_size,
-                                            max_idle=config.max_idle)
+                                            min_size=config.pool_min_size,
+                                            max_size=config.pool_max_size,
+                                            max_idle=config.pool_max_idle)
+
+
 
 def pool_stats():
     return pool_default.get_stats()
@@ -154,7 +156,7 @@ requests_waiting BIGINT
     insert(sql_raw, None)
 
 
-def _monitor_pool(sleep_s=15):
+def _monitor_pool(sleep_s=config.pool_stat_sleep):
     _create_log_table()
 
     sql_raw = """INSERT INTO public.psycopg3_pool_log (connections_num, connections_ms,
