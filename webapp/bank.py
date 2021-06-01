@@ -3,7 +3,7 @@
 Some based around queries in docs (https://www.postgresql.org/docs/current/pgbench.html)
 others more geared toward "real" types of queries.
 """
-from webapp import app, db, db_pool
+from webapp import app, db, db_pool, config
 
 
 def get_account_balance(account_id, pool):
@@ -116,7 +116,9 @@ SELECT 3 AS sort, '1 day' AS time_frame, bid, COUNT(*) AS account_updates,
 ;
 """
 
-    if pool == 'pool':
+    if (pool == 'pool' and config.REPORTING_POOL):
+        results = db_pool.get_data(sql_raw, params=None, pool_name='reporting')
+    elif pool == 'pool':
         results = db_pool.get_data(sql_raw, params=None)
     else:
         results = db.get_data(sql_raw, params=None)
@@ -134,7 +136,9 @@ SELECT COUNT(*) AS accounts,
 """
     params = {'branch_id': branch_id}
 
-    if pool == 'pool':
+    if (pool == 'pool' and config.REPORTING_POOL):
+        results = db_pool.get_data(sql_raw, params=params, pool_name='reporting')
+    elif pool == 'pool':
         results = db_pool.get_data(sql_raw, params=params)
     else:
         results = db.get_data(sql_raw, params=params)

@@ -46,6 +46,14 @@ env $(cat ~/.psycopg3-connpool.env | grep -v ^# | xargs) python run_server.py
 ```
 
 
+## Locust tests
+
+In Progress.
+
+
+```bash
+locust -f locustfiles/pool_users.py
+```
 
 
 

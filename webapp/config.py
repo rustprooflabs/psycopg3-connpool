@@ -3,10 +3,17 @@ import logging
 
 APP_NAME = 'psycopg3-connpool-webapp'
 
+# Set to False to force reporting queries to share pool with non-reporting queries
+REPORTING_POOL = True
+
 pool_min_size = 1
 pool_max_size = 10
 pool_max_idle = 60
 pool_stat_sleep = 60
+
+
+if not REPORTING_POOL:
+    pool_max_size += 5
 
 
 CURR_PATH = os.path.abspath(os.path.dirname(__file__))
