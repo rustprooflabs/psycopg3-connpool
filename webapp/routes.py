@@ -6,9 +6,10 @@ from webapp import app, bank, db_pool
 
 
 @app.route('/pool_stats')
-@app.route('/pool_stats/<pool_name>')
-def view_db_pool_stats(pool_name='default'):
-    data = db_pool.pool_stats(pool_name=pool_name)
+def view_db_pool_stats():
+    data_default = db_pool.pool_stats(pool_name='default')
+    data_reporting = db_pool.pool_stats(pool_name='reporting')
+    data = [data_default, data_reporting]
     return jsonify(success='True', data=data)
 
 
