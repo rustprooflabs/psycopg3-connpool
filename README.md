@@ -46,6 +46,28 @@ env $(cat ~/.psycopg3-connpool.env | grep -v ^# | xargs) python run_server.py
 ```
 
 
+## Locust tests
+
+Run w/ GUI.
+
+```bash
+locust -f locustfiles/pool_users.py
+```
+
+
+Headless, 150 users.
+
+```bash
+mkdir locust_out
+
+locust --headless --only-summary \
+    -H http://127.0.0.1:5000 \
+    -u 150 \
+    -r 25 \
+    -t 120 \
+    --html locust_out/pool_reporting.html \
+    -f locustfiles/pool_users.py
+```
 
 
 

@@ -7,7 +7,9 @@ from webapp import app, bank, db_pool
 
 @app.route('/pool_stats')
 def view_db_pool_stats():
-    data = db_pool.pool_stats()
+    data_default = db_pool.pool_stats(pool_name='default')
+    data_reporting = db_pool.pool_stats(pool_name='reporting')
+    data = [data_default, data_reporting]
     return jsonify(success='True', data=data)
 
 
@@ -26,4 +28,16 @@ def view_update_account_balance(pool, account_id, delta):
     return jsonify(success='True',
                    update_results=update_results,
                    account_balance=account_balance)
+
+@app.route('/<pool>/report/branch_activity')
+def view_report_branch_activity(pool):
+    data = bank.get_recent_activity_by_branch(pool)
+    return jsonify(success='True',
+                   data=data)
+
+@app.route('/<pool>/report/branch/<branch_id>')
+def view_report_branch_stats(pool, branch_id):
+    data = bank.get_branch_stats(pool, branch_id)
+    return jsonify(success='True',
+                   data=data)
 
