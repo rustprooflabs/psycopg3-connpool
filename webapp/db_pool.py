@@ -1,18 +1,18 @@
 import logging
-import psycopg3
-import psycopg3.pool
+import psycopg
+import psycopg.pool
 import threading
 import time
 from random import random
 from webapp import app, config
 
 
-pool_default = psycopg3.pool.ConnectionPool(config.DATABASE_STRING,
+pool_default = psycopg.pool.ConnectionPool(config.DATABASE_STRING,
                                             min_size=config.pool_min_size,
                                             max_size=config.pool_max_size,
                                             max_idle=config.pool_max_idle)
 
-pool_reporting = psycopg3.pool.ConnectionPool(config.DATABASE_STRING,
+pool_reporting = psycopg.pool.ConnectionPool(config.DATABASE_STRING,
                                               min_size=0,
                                               max_size=5,
                                               max_idle=config.pool_max_idle,
@@ -117,7 +117,7 @@ def _execute_query(sql_raw, params, qry_type, pool_name='default'):
         sel_pool = pool_default
 
     with sel_pool.connection() as conn:
-        cur = conn.cursor(row_factory=psycopg3.rows.dict_row)
+        cur = conn.cursor(row_factory=psycopg.rows.dict_row)
 
         try:
             if qry_type == 'sel_multi':
@@ -134,13 +134,13 @@ def _execute_query(sql_raw, params, qry_type, pool_name='default'):
                 results = True
             else:
                 raise Exception('Invalid query type defined.')
-        except psycopg3.OperationalError as err:
+        except psycopg.OperationalError as err:
             app.logger.error(f'Error querying: {err}')
-        except psycopg3.ProgrammingError as err:
-            app.logger.error('Database error via psycopg3.  %s', err)
+        except psycopg.ProgrammingError as err:
+            app.logger.error('Database error via psycopg.  %s', err)
             results = False
-        except psycopg3.IntegrityError as err:
-            app.logger.error('PostgreSQL integrity error via psycopg3.  %s', err)
+        except psycopg.IntegrityError as err:
+            app.logger.error('PostgreSQL integrity error via psycopg.  %s', err)
             results = False
 
     return results

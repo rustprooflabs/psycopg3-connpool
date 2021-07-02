@@ -1,6 +1,6 @@
-"""Brought in from PgDD-UI project. Updating for psycopg3 w/out using connection pooling."""
+"""Brought in from PgDD-UI project. Updating for psycopg w/out using connection pooling."""
 import logging
-import psycopg3
+import psycopg
 from webapp import config
 
 
@@ -70,13 +70,13 @@ def update(sql_raw, params):
 
 
 def get_db_conn():
-    """Establishes psycopg3 database connection."""
+    """Establishes psycopg database connection."""
     db_string = config.DATABASE_STRING
 
     try:
-        conn = psycopg3.connect(db_string)
+        conn = psycopg.connect(db_string)
         config.DB_CONN_AVAILABLE = True
-    except psycopg3.OperationalError as err:
+    except psycopg.OperationalError as err:
         config.DB_CONN_AVAILABLE = False
         err_msg = 'Database connection error.  Error: {}'.format(err)
         LOGGER.error(err_msg)
@@ -110,7 +110,7 @@ def _execute_query(sql_raw, params, qry_type):
     """
     try:
         conn = get_db_conn()
-    except psycopg3.ProgrammingError as err:
+    except psycopg.ProgrammingError as err:
         err_msg = 'Connection not configured properly.  Err: %s'
         LOGGER.error(err_msg, err)
         return False
@@ -118,7 +118,7 @@ def _execute_query(sql_raw, params, qry_type):
     if not conn:
         return False
 
-    cur = conn.cursor(row_factory=psycopg3.rows.dict_row)
+    cur = conn.cursor(row_factory=psycopg.rows.dict_row)
 
     try:
         cur.execute(sql_raw, params)
@@ -135,11 +135,11 @@ def _execute_query(sql_raw, params, qry_type):
         else:
             raise Exception('Invalid query type defined.')
 
-    except psycopg3.ProgrammingError as err:
-        LOGGER.error('Database error via psycopg3.  %s', err)
+    except psycopg.ProgrammingError as err:
+        LOGGER.error('Database error via psycopg.  %s', err)
         results = False
-    except psycopg3.IntegrityError as err:
-        LOGGER.error('PostgreSQL integrity error via psycopg3.  %s', err)
+    except psycopg.IntegrityError as err:
+        LOGGER.error('PostgreSQL integrity error via psycopg.  %s', err)
         results = False
     finally:
         conn.close()
