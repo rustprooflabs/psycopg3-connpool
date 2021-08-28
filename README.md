@@ -17,6 +17,10 @@ source ~/venv/psycopg3/bin/activate
 Install `requirements.txt`.  Manually install psycopg3 (not in PyPI yet!)
 See https://www.psycopg.org/psycopg3/docs/basic/install.html
 
+```bash
+pip install git+https://github.com/psycopg/psycopg.git#subdirectory=psycopg
+pip install git+https://github.com/psycopg/psycopg.git#subdirectory=psycopg_pool
+```
 
 ## Env vars
 

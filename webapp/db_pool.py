@@ -1,18 +1,18 @@
 import logging
 import psycopg
-import psycopg.pool
+import psycopg_pool
 import threading
 import time
 from random import random
 from webapp import app, config
 
 
-pool_default = psycopg.pool.ConnectionPool(config.DATABASE_STRING,
+pool_default = psycopg_pool.ConnectionPool(config.DATABASE_STRING,
                                             min_size=config.pool_min_size,
                                             max_size=config.pool_max_size,
                                             max_idle=config.pool_max_idle)
 
-pool_reporting = psycopg.pool.ConnectionPool(config.DATABASE_STRING,
+pool_reporting = psycopg_pool.ConnectionPool(config.DATABASE_STRING,
                                               min_size=0,
                                               max_size=5,
                                               max_idle=config.pool_max_idle,
