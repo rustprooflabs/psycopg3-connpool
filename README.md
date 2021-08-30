@@ -11,16 +11,11 @@ Assuming Python 3.7+
 cd ~/venv/
 python -m venv psycopg3
 source ~/venv/psycopg3/bin/activate
+pip install --pre -r requirements.txt
 ```
 
+> Note:  Using `--pre` is required until psycopg3 is realeased as prod-ready version.
 
-Install `requirements.txt`.  Manually install psycopg3 (not in PyPI yet!)
-See https://www.psycopg.org/psycopg3/docs/basic/install.html
-
-```bash
-pip install git+https://github.com/psycopg/psycopg.git#subdirectory=psycopg
-pip install git+https://github.com/psycopg/psycopg.git#subdirectory=psycopg_pool
-```
 
 ## Env vars
 

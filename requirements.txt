@@ -3,6 +3,9 @@ Flask-Compress==1.10.1
 Flask-WTF==0.15.1
 Jinja2==3.0.1
 locust==2.1.0
+psycopg==3.0b1
+psycopg-binary==3.0b1
+psycopg-pool==3.0b1
 urllib3==1.26.6
 uWSGI==2.0.19.1
 Werkzeug==2.0.1
