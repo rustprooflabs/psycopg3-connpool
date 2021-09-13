@@ -1,15 +1,15 @@
 import os
 import logging
 
-APP_NAME = 'psycopg3-connpool-webapp'
+APP_NAME = 'psycopg3-connpool'
 
 # Set to False to force reporting queries to share pool with non-reporting queries
 REPORTING_POOL = True
 
-pool_min_size = 1
-pool_max_size = 10
-pool_max_idle = 60
-pool_stat_sleep = 60
+POOL_MIN_SIZE = 1
+POOL_MAX_SIZE = 10
+POOL_MAX_IDLE = 60
+POOL_STAT_SLEEP = 300
 
 
 if not REPORTING_POOL:
