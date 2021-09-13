@@ -1,3 +1,4 @@
+from collections import defaultdict
 import logging
 import psycopg
 import psycopg_pool
@@ -8,22 +9,36 @@ from webapp import app, config
 
 
 pool_default = psycopg_pool.ConnectionPool(config.DATABASE_STRING,
-                                            min_size=config.pool_min_size,
-                                            max_size=config.pool_max_size,
-                                            max_idle=config.pool_max_idle)
+                                            min_size=config.POOL_MIN_SIZE,
+                                            max_size=config.POOL_MAX_SIZE,
+                                            max_idle=config.POOL_MAX_IDLE)
 
 pool_reporting = psycopg_pool.ConnectionPool(config.DATABASE_STRING,
                                               min_size=0,
                                               max_size=5,
-                                              max_idle=config.pool_max_idle,
+                                              max_idle=config.POOL_MAX_IDLE,
                                               timeout=120)
 
 
 def pool_stats(pool_name='default'):
-    if pool_name == 'reporting':
-        return pool_reporting.get_stats()
+    """Returns the appropriate pool's stats. Uses `pop` to reset each time.
 
-    return pool_default.get_stats()
+    Parameters
+    -------------------------
+    pool_name : str
+
+    Returns
+    -------------------------
+    stats : defaultdict
+    """
+    if pool_name == 'reporting':
+        stats_base = pool_reporting.pop_stats()
+    else:
+        stats_base = pool_default.pop_stats()
+
+    stats = defaultdict(int, stats_base)
+    stats['app_name'] = f'{config.APP_NAME}-{pool_name}'
+    return stats
 
 
 def get_data(sql_raw, params=None, single_row=False, pool_name='default'):
@@ -150,33 +165,44 @@ def _execute_query(sql_raw, params, qry_type, pool_name='default'):
 
 def _create_log_table():
     sql_raw = """CREATE TABLE IF NOT EXISTS public.psycopg3_pool_log
-(id BIGSERIAL NOT NULL PRIMARY KEY, ts TIMESTAMPTZ NOT NULL DEFAULT NOW(), 
-connections_num BIGINT,
-connections_ms BIGINT,
-requests_num BIGINT,
-usage_ms BIGINT,
-requests_queued BIGINT,
-requests_wait_ms BIGINT,
-pool_min BIGINT,
-pool_max BIGINT,
-pool_size BIGINT,
-pool_available BIGINT,
-requests_waiting BIGINT
+(
+    id BIGINT NOT NULL GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    ts TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    app_name TEXT NULL,
+    pool_min BIGINT,
+    pool_max BIGINT,
+    pool_size BIGINT,
+    pool_available BIGINT,
+    requests_waiting BIGINT,
+    usage_ms BIGINT,
+    requests_num BIGINT,
+    requests_queued BIGINT,
+    requests_wait_ms BIGINT,
+    requests_errors BIGINT,
+    returns_bad BIGINT,
+    connections_num BIGINT,
+    connections_ms BIGINT,
+    connections_errors BIGINT,
+    connections_lost BIGINT
 )
 """
     insert(sql_raw, None)
 
 
-def _monitor_pool(sleep_s=config.pool_stat_sleep):
+def _monitor_pool(sleep_s=config.POOL_STAT_SLEEP):
     _create_log_table()
 
-    sql_raw = """INSERT INTO public.psycopg3_pool_log (connections_num, connections_ms,
-    requests_num, usage_ms, requests_queued, requests_wait_ms, pool_min, pool_max,
-    pool_size, pool_available, requests_waiting)
+    sql_raw = """INSERT INTO public.psycopg3_pool_log
+        (pool_min, pool_max, pool_size, pool_available, requests_waiting, usage_ms,
+        requests_num, requests_queued, requests_wait_ms, requests_errors, returns_bad,
+        connections_num, connections_ms, connections_errors, connections_lost,
+        app_name)
 VALUES (
-    %(connections_num)s, %(connections_ms)s, %(requests_num)s, %(usage_ms)s,
-    %(requests_queued)s, %(requests_wait_ms)s, %(pool_min)s, %(pool_max)s,
-    %(pool_size)s, %(pool_available)s, %(requests_waiting)s
+        %(pool_min)s, %(pool_max)s, %(pool_size)s, %(pool_available)s, %(requests_waiting)s,
+        %(usage_ms)s, %(requests_num)s, %(requests_queued)s, %(requests_wait_ms)s,
+        %(requests_errors)s, %(returns_bad)s, %(connections_num)s, %(connections_ms)s,
+        %(connections_errors)s, %(connections_lost)s,
+        %(app_name)s
 );
 """
     while True:

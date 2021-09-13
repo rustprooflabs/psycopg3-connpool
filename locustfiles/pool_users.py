@@ -16,7 +16,7 @@ else:
 
 class BankWebappUser(HttpUser):
     wait_time = between(1, 3.5)
-    weight = 100
+    weight = 75
 
     @task(5)
     def check_balance(self):
