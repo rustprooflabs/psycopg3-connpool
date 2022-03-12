@@ -16,7 +16,7 @@ else:
 
 class BankWebappUser(HttpUser):
     wait_time = between(1, 3.5)
-    weight = 75
+    weight = 50
 
     @task(5)
     def check_balance(self):
@@ -34,7 +34,7 @@ class BankWebappUser(HttpUser):
         self.client.get(f'/{pool_str}/account/{account_id}/update/{delta}', name=f'{pool_str}: account_update')
 
 class ReportingUser(HttpUser):
-    wait_time = between(1.5, 6)
+    wait_time = between(2.5, 5)
 
     @task(5)
     def view_branch_activity(self):
@@ -47,36 +47,39 @@ class ReportingUser(HttpUser):
 
 
 
-# class StagesShape(LoadTestShape):
-#     """
-#     Based on: https://github.com/locustio/locust/blob/master/examples/custom_shape/stages.py
+class StagesShape(LoadTestShape):
+    """
+    Based on: https://github.com/locustio/locust/blob/master/examples/custom_shape/stages.py
 
-#     A simply load test shape class that has different user and spawn_rate at
-#     different stages.
-#     Keyword arguments:
-#         stages -- A list of dicts, each representing a stage with the following keys:
-#             duration -- When this many seconds pass the test is advanced to the next stage
-#             users -- Total user count
-#             spawn_rate -- Number of users to start/stop per second
-#             stop -- A boolean that can stop that test at a specific stage
-#         stop_at_end -- Can be set to stop once all stages have run.
-#     """
+    A simply load test shape class that has different user and spawn_rate at
+    different stages.
+    Keyword arguments:
+        stages -- A list of dicts, each representing a stage with the following keys:
+            duration -- When this many seconds pass the test is advanced to the next stage
+            users -- Total user count
+            spawn_rate -- Number of users to start/stop per second
+            stop -- A boolean that can stop that test at a specific stage
+        stop_at_end -- Can be set to stop once all stages have run.
+    """
 
-#     stages = [
-#         {"duration": 20, "users": 25, "spawn_rate": 2},
-#         {"duration": 80, "users": 75, "spawn_rate": 10},
-#         {"duration": 120, "users": 10, "spawn_rate": 4},
-#         {"duration": 200, "users": 120, "spawn_rate": 25},
-#         {"duration": 230, "users": 50, "spawn_rate": 4},
-#         {"duration": 250, "users": 3, "spawn_rate": 1},
-#     ]
+    stages = [
+        {"duration": 20, "users": 25, "spawn_rate": 2},
+        {"duration": 80, "users": 75, "spawn_rate": 10},
+        {"duration": 120, "users": 10, "spawn_rate": 4},
+        {"duration": 200, "users": 250, "spawn_rate": 30},
+        {"duration": 230, "users": 50, "spawn_rate": 4},
+        {"duration": 250, "users": 120, "spawn_rate": 25},
+        {"duration": 360, "users": 80, "spawn_rate": 8},
+        {"duration": 390, "users": 20, "spawn_rate": 4},
+        {"duration": 410, "users": 3, "spawn_rate": 1},
+    ]
 
-#     def tick(self):
-#         run_time = self.get_run_time()
+    def tick(self):
+        run_time = self.get_run_time()
 
-#         for stage in self.stages:
-#             if run_time < stage["duration"]:
-#                 tick_data = (stage["users"], stage["spawn_rate"])
-#                 return tick_data
+        for stage in self.stages:
+            if run_time < stage["duration"]:
+                tick_data = (stage["users"], stage["spawn_rate"])
+                return tick_data
 
-#         return None
+        return None

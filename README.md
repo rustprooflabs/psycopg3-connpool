@@ -11,10 +11,9 @@ Assuming Python 3.7+
 cd ~/venv/
 python -m venv psycopg3
 source ~/venv/psycopg3/bin/activate
-pip install --pre -r requirements.txt
+pip install -r requirements.txt
 ```
 
-> Note:  Using `--pre` is required until psycopg3 is realeased as prod-ready version.
 
 
 ## Env vars
@@ -54,16 +53,13 @@ locust -f locustfiles/pool_users.py
 ```
 
 
-Headless, 150 users.
+Headless, uses the shape defined in the locust file.
 
 ```bash
 mkdir locust_out
 
 locust --headless --only-summary \
     -H http://127.0.0.1:5000 \
-    -u 150 \
-    -r 25 \
-    -t 120 \
     --html locust_out/pool_reporting.html \
     -f locustfiles/pool_users.py
 ```
@@ -119,7 +115,7 @@ pgbench -i -s 100 bench_test
 Remove log files to setup pgBadger report to only have the following pgbench test.
 
 ```
-sudo rm /var/log/postgresql/postgresql-13-main.log*
+sudo rm /var/log/postgresql/postgresql-14-main.log*
 sudo systemctl restart postgresql
 ```
 
@@ -132,7 +128,7 @@ mkdir pgbadger
 ```
 
 ```bash
-pgbadger --anonymize /var/log/postgresql/postgresql-12-main.log* -o pgbadger/test_name.html
+pgbadger --anonymize /var/log/postgresql/postgresql-14-main.log* -o pgbadger/test_name.html
 ```
 
 
