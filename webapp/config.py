@@ -70,3 +70,5 @@ PGMUSTARD_MIN_THRESHOLD_MS = 0.01
 KNOWN_QUERIES = dict()
 """dict : Key is query_id from Postgres. Value is dict describing known query."""
 
+KNOWN_QUERY_CACHE_MAX_AGE = 60
+""" int : time in seconds after which known queries become forgotten"""

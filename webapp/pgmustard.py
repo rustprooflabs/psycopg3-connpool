@@ -1,4 +1,6 @@
+import datetime
 import requests
+import threading
 from webapp import config, db_pool
 
 
@@ -20,7 +22,13 @@ def tracker(sql_raw, params, qry_type, pool_name):
     else:
         print('resetting pgmustard counter')
         config.PGMUSTARD_COUNTER = 0
-        explain_with_pgmustard(sql_raw, params, qry_type, pool_name)
+
+        args = [sql_raw, params, qry_type, pool_name]
+        pool_thread = threading.Thread(target=explain_with_pgmustard,
+                                       args=args)
+        pool_thread.start()
+
+        #explain_with_pgmustard()
 
 
 def explain_with_pgmustard(sql_raw, params, qry_type, pool_name):
@@ -29,13 +37,20 @@ def explain_with_pgmustard(sql_raw, params, qry_type, pool_name):
     query_id = plan['Query Identifier']
     if query_id in config.KNOWN_QUERIES:
         # Currently it doesn't matter why it's known
-        print(f'Known query (doing nothing): {config.KNOWN_QUERIES[query_id]}')
+        known_query = config.KNOWN_QUERIES[query_id]
+        print(f'Known query: {known_query}')
+        known_age = datetime.datetime.now() - known_query['observed_at']
+        age_seconds = known_age.total_seconds()
+
+        if age_seconds > config.KNOWN_QUERY_CACHE_MAX_AGE:
+            config.KNOWN_QUERIES.pop(query_id)
         return
 
     min_query_time = config.PGMUSTARD_MIN_THRESHOLD_MS
     if plan['Execution Time'] < min_query_time:
         print('Fast query, not sending to pgMustard')
-        known_query = {'fast': True, 'pgmustard-results': None}
+        known_query = {'fast': True, 'pgmustard-results': None,
+                       'observed_at': datetime.datetime.now()}
         config.KNOWN_QUERIES[query_id] = known_query
         return True
 
@@ -47,7 +62,8 @@ def explain_with_pgmustard(sql_raw, params, qry_type, pool_name):
     # 10% longer than minimum
     if pgmustard_results['query-time'] <= min_query_time * .1:
         print('Query is still fast...')
-        known_query = {'fast': True, 'pgmustard-results': pgmustard_results}
+        known_query = {'fast': True, 'pgmustard-results': pgmustard_results,
+                       'observed_at': datetime.datetime.now()}
         config.KNOWN_QUERIES[query_id] = known_query
         return True
 
@@ -82,9 +98,8 @@ def pgmustard_api(plan):
 
 
 def log_pgmustard_results(pgmustard_results):
-    print('Pretending to log....')
-    known_query = {'fast': False, 'pgmustard-results': pgmustard_results}
-    print(pgmustard_results)
+    known_query = {'fast': False, 'pgmustard-results': pgmustard_results,
+                   'observed_at': datetime.datetime.now()}
     query_id = pgmustard_results['query-identifier']
     config.KNOWN_QUERIES[query_id] = known_query
 
