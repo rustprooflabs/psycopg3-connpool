@@ -53,9 +53,9 @@ except KeyError:
 
 
 try:
-    PGMUSTARD_PW = os.environ['PGMUSTARD_PW']
+    PGMUSTARD_API_TOKEN = os.environ['PGMUSTARD_API_TOKEN']
 except KeyError:
-    PGMUSTARD_PW = None
+    PGMUSTARD_API_TOKEN = None
 
 PGMUSTARD_FREQUENCY = 2
 """Float : What percentage of queries to submit to pgMustard"""
@@ -65,7 +65,7 @@ PGMUSTARD_COUNTER = 0
 PGMUSTARD_KNOWN_QUERIES = dict()
 """ Key is query_id (requires Pg 14+)"""
 
-PGMUSTARD_MIN_THRESHOLD_MS = 0.01
+PGMUSTARD_MIN_THRESHOLD_MS = 0.001
 
 KNOWN_QUERIES = dict()
 """dict : Key is query_id from Postgres. Value is dict describing known query."""
