@@ -5,7 +5,7 @@ import psycopg_pool
 import threading
 import time
 from random import random
-from webapp import app, config
+from webapp import app, pgmustard, config
 
 
 pool_default = psycopg_pool.ConnectionPool(config.DATABASE_STRING,
@@ -130,6 +130,8 @@ def _execute_query(sql_raw, params, qry_type, pool_name='default'):
         sel_pool = pool_reporting
     else:
         sel_pool = pool_default
+
+    pgmustard.tracker(sql_raw, params, qry_type, pool_name)
 
     with sel_pool.connection() as conn:
         cur = conn.cursor(row_factory=psycopg.rows.dict_row)

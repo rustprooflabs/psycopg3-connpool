@@ -14,6 +14,7 @@ source ~/venv/psycopg3/bin/activate
 pip install -r requirements.txt
 ```
 
+> Latest changes to track queries with pgMustard requires Postgres 14 and newer for the [Query ID](https://blog.rustprooflabs.com/2021/10/postgres-14-query-id).
 
 
 ## Env vars
